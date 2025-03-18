@@ -1,88 +1,94 @@
-// متغيرات عامة  
-let currentUser = null;  
+// العناصر التي سنحتاجها  
+const surahSelect = document.getElementById('surah');  
+const ayahFromInput = document.getElementById('ayahFrom');  
+const ayahToInput = document.getElementById('ayahTo');  
+const saveButton = document.getElementById('saveReading');  
+const progressDiv = document.getElementById('progress');  
 
-// التحقق من تسجيل الدخول عند تحميل الصفحة  
-document.addEventListener('DOMContentLoaded', () => {  
-    checkLoginStatus();  
-});  
+// قائمة السور مع عدد آياتها  
+const surahs = [  
+    { name: "الفاتحة", ayahs: 7 },  
+    { name: "البقرة", ayahs: 286 },  
+    { name: "آل عمران", ayahs: 200 },  
+    // يمكنك إضافة باقي السور هنا  
+];  
 
-// التحقق من حالة تسجيل الدخول  
-function checkLoginStatus() {  
-    const savedUser = localStorage.getItem('currentUser');  
-    if (savedUser) {  
-        currentUser = JSON.parse(savedUser);  
-        showDashboard();  
+// إضافة السور إلى القائمة المنسدلة  
+function populateSurahs() {  
+    surahSelect.innerHTML = '';  
+    surahs.forEach((surah, index) => {  
+        const option = document.createElement('option');  
+        option.value = index + 1;  
+        option.textContent = surah.name;  
+        surahSelect.appendChild(option);  
+    });  
+}  
+
+// حفظ القراءة  
+function saveReading() {  
+    const surahIndex = parseInt(surahSelect.value) - 1;  
+    const fromAyah = parseInt(ayahFromInput.value);  
+    const toAyah = parseInt(ayahToInput.value);  
+    
+    // التحقق من صحة المدخلات  
+    if (!fromAyah || !toAyah || fromAyah > toAyah) {  
+        alert('الرجاء إدخال أرقام الآيات بشكل صحيح');  
+        return;  
     }  
-}  
-
-// إظهار لوحة المتابعة  
-function showDashboard() {  
-    document.getElementById('login-section').classList.remove('active-section');  
-    document.getElementById('login-section').classList.add('hidden');  
-    document.getElementById('dashboard').classList.remove('hidden');  
-    document.getElementById('dashboard').classList.add('active-section');  
-    document.getElementById('user-name').textContent = currentUser.username;  
-    loadUserProgress();  
-}  
-
-// تحميل تقدم المستخدم  
-function loadUserProgress() {  
-    const progress = JSON.parse(localStorage.getItem(`progress_${currentUser.username}`)) || {  
-        memorize: 0,  
-        review: 0,  
-        prayers: Array(5).fill(false),  
-        sunnah: Array(5).fill(false)  
-    };  
     
-    document.getElementById('daily-memorize').value = progress.memorize;  
-    document.getElementById('daily-review').value = progress.review;  
-}  
-
-// معالجة نموذج تسجيل الدخول  
-document.getElementById('login-form').addEventListener('submit', (e) => {  
-    e.preventDefault();  
-    const username = document.getElementById('username').value;  
-    const password = document.getElementById('password').value;  
-    
-    // تحقق بسيط من كلمة المرور (في التطبيق الحقيقي يجب استخدام تحقق أكثر أماناً)  
-    if (password.length === 4) {  
-        currentUser = { username, password };  
-        localStorage.setItem('currentUser', JSON.stringify(currentUser));  
-        showDashboard();  
-    } else {  
-        alert('كلمة المرور يجب أن تكون 4 أرقام');  
+    if (toAyah > surahs[surahIndex].ayahs) {  
+        alert('رقم الآية أكبر من عدد آيات السورة');  
+        return;  
     }  
-});  
-
-// حفظ التقدم  
-document.getElementById('save-progress').addEventListener('click', () => {  
-    const progress = {  
-        memorize: parseInt(document.getElementById('daily-memorize').value) || 0,  
-        review: parseInt(document.getElementById('daily-review').value) || 0,  
-        prayers: Array.from(document.querySelectorAll('.prayer-check')).map(check => check.checked),  
-        sunnah: Array.from(document.querySelectorAll('.sunnah-check')).map(check => check.checked)  
-    };  
     
-    localStorage.setItem(`progress_${currentUser.username}`, JSON.stringify(progress));  
-    alert('تم حفظ التقدم بنجاح');  
-});  
+    // حفظ القراءة في localStorage  
+    const readings = JSON.parse(localStorage.getItem('readings') || '[]');  
+    readings.push({  
+        surah: surahIndex + 1,  
+        from: fromAyah,  
+        to: toAyah,  
+        date: new Date().toISOString()  
+    });  
+    localStorage.setItem('readings', JSON.stringify(readings));  
+    
+    // تحديث عرض التقدم  
+    showProgress();  
+    
+    // تفريغ الحقول  
+    ayahFromInput.value = '';  
+    ayahToInput.value = '';  
+}  
 
-// تسجيل الخروج  
-document.getElementById('logout-btn').addEventListener('click', () => {  
-    localStorage.removeItem('currentUser');  
-    currentUser = null;  
-    document.getElementById('dashboard').classList.remove('active-section');  
-    document.getElementById('dashboard').classList.add('hidden');  
-    document.getElementById('login-section').classList.remove('hidden');  
-    document.getElementById('login-section').classList.add('active-section');  
-    document.getElementById('login-form').reset();  
-});  
+// عرض التقدم  
+function showProgress() {  
+    const readings = JSON.parse(localStorage.getItem('readings') || '[]');  
+    if (readings.length === 0) {  
+        progressDiv.textContent = 'لم يتم تسجيل أي قراءة بعد';  
+        return;  
+    }  
+    
+    let html = '<ul>';  
+    readings.forEach(reading => {  
+        const surahName = surahs[reading.surah - 1].name;  
+        const date = new Date(reading.date).toLocaleDateString('ar');  
+        html += `  
+            <li>  
+                قراءة ${surahName} من آية ${reading.from} إلى ${reading.to}  
+                <br>  
+                <small>بتاريخ: ${date}</small>  
+            </li>  
+        `;  
+    });  
+    html += '</ul>';  
+    progressDiv.innerHTML = html;  
+}  
 
-// الأذكار  
-document.getElementById('morning-azkar').addEventListener('click', () => {  
-    alert('سيتم إضافة أذكار الصباح قريباً');  
-});  
+// تهيئة التطبيق  
+function init() {  
+    populateSurahs();  
+    showProgress();  
+    saveButton.addEventListener('click', saveReading);  
+}  
 
-document.getElementById('evening-azkar').addEventListener('click', () => {  
-    alert('سيتم إضافة أذكار المساء قريباً');  
-});
+// بدء التطبيق  
+init();
