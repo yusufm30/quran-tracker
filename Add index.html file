@@ -1,0 +1,80 @@
+<!DOCTYPE html>  
+<html lang="ar" dir="rtl">  
+<head>  
+    <meta charset="UTF-8">  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+    <title>متابعة الحفظ والمراجعة</title>  
+    <link rel="stylesheet" href="style.css">  
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">  
+</head>  
+<body>  
+    <div class="container">  
+        <!-- قسم تسجيل الدخول -->  
+        <section id="login-section" class="active-section">  
+            <div class="login-card">  
+                <h1><i class="fas fa-book-open"></i> متابعة الحفظ</h1>  
+                <form id="login-form">  
+                    <div class="input-group">  
+                        <i class="fas fa-user"></i>  
+                        <input type="text" id="username" placeholder="اسم المستخدم" required>  
+                    </div>  
+                    <div class="input-group">  
+                        <i class="fas fa-lock"></i>  
+                        <input type="password" id="password" placeholder="كلمة المرور (4 أرقام)" maxlength="4" required>  
+                    </div>  
+                    <button type="submit" class="btn-primary">تسجيل الدخول</button>  
+                    <button type="button" id="register-btn" class="btn-secondary">حساب جديد</button>  
+                </form>  
+            </div>  
+        </section>  
+
+        <!-- لوحة المتابعة -->  
+        <section id="dashboard" class="hidden">  
+            <nav class="dashboard-nav">  
+                <h2><i class="fas fa-user-circle"></i> <span id="user-name"></span></h2>  
+                <button id="logout-btn" class="btn-secondary"><i class="fas fa-sign-out-alt"></i> خروج</button>  
+            </nav>  
+
+            <!-- متابعة الحفظ -->  
+            <div class="dashboard-card">  
+                <h3><i class="fas fa-bookmark"></i> الحفظ والمراجعة</h3>  
+                <div class="progress-container">  
+                    <div class="progress-item">  
+                        <label>الحفظ اليومي</label>  
+                        <input type="number" id="daily-memorize" min="0" max="10" value="0">  
+                        <span class="target">الهدف: صفحتان</span>  
+                    </div>  
+                    <div class="progress-item">  
+                        <label>المراجعة اليومية</label>  
+                        <input type="number" id="daily-review" min="0" max="20" value="0">  
+                        <span class="target">الهدف: 5 صفحات</span>  
+                    </div>  
+                </div>  
+                <button id="save-progress" class="btn-primary">حفظ التقدم</button>  
+            </div>  
+
+            <!-- متابعة الصلوات -->  
+            <div class="dashboard-card">  
+                <h3><i class="fas fa-mosque"></i> الصلوات</h3>  
+                <div class="prayer-grid">  
+                    <div class="prayer-item">  
+                        <label>الفجر</label>  
+                        <input type="checkbox" class="prayer-check">  
+                        <input type="checkbox" class="sunnah-check">  
+                    </div>  
+                </div>  
+            </div>  
+
+            <!-- الأذكار -->  
+            <div class="dashboard-card">  
+                <h3><i class="fas fa-pray"></i> الأذكار</h3>  
+                <div class="azkar-buttons">  
+                    <button id="morning-azkar" class="btn-secondary">أذكار الصباح</button>  
+                    <button id="evening-azkar" class="btn-secondary">أذكار المساء</button>  
+                </div>  
+            </div>  
+        </section>  
+    </div>  
+    <script src="script.js"></script>  
+</body>  
+</html>
